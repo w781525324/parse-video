@@ -20,7 +20,7 @@ type douYin struct{}
 func (d douYin) parseVideoID(videoId string) (*VideoParseInfo, error) {
 	reqUrl := fmt.Sprintf("https://www.iesdouyin.com/share/video/%s", videoId)
 
-	client := resty.New()
+	client := newClient()
 	res, err := client.R().
 		SetHeader(HttpHeaderUserAgent, "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1").
 		Get(reqUrl)
@@ -113,9 +113,15 @@ func (d douYin) parseVideoID(videoId string) (*VideoParseInfo, error) {
 		})
 	}
 
+	// 获取音频地址（图集时，video.play_addr.uri 是音频地址；视频时不是音频）
+	musicUrl := data.Get("video.play_addr.uri").String()
+
 	// 如果图集地址不为空时，因为没有视频，上面抖音返回的视频地址无法访问，置空处理
+	// 图集时，musicUrl 是音频地址；视频时，musicUrl 不是音频，置空
 	if len(images) > 0 {
 		videoUrl = ""
+	} else {
+		musicUrl = ""
 	}
 
 	urlList := data.Get("video.cover.url_list").Array()
@@ -125,7 +131,7 @@ func (d douYin) parseVideoID(videoId string) (*VideoParseInfo, error) {
 	videoInfo := &VideoParseInfo{
 		Title:    data.Get("desc").String(),
 		VideoUrl: videoUrl,
-		MusicUrl: "",
+		MusicUrl: musicUrl,
 		//CoverUrl: data.Get("video.cover.url_list.0").String(),
 		CoverUrl: coverUrl,
 		Images:   images,
@@ -167,7 +173,7 @@ func (d douYin) parseAppShareUrl(shareUrl string) (*VideoParseInfo, error) {
 	// 适配App分享链接类型:
 	// https://v.douyin.com/xxxxxx/
 
-	client := resty.New()
+	client := newClient()
 	// disable redirects in the HTTP client, get params before redirects
 	client.SetRedirectPolicy(resty.NoRedirectPolicy())
 	res, err := client.R().
@@ -242,7 +248,7 @@ func (d douYin) parseVideoIdFromPath(urlPath string) (string, error) {
 }
 
 func (d douYin) getRedirectUrl(videoInfo *VideoParseInfo) {
-	client := resty.New()
+	client := newClient()
 	client.SetRedirectPolicy(resty.NoRedirectPolicy())
 	res2, _ := client.R().
 		SetHeader(HttpHeaderUserAgent, DefaultUserAgent).

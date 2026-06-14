@@ -24,6 +24,10 @@ const (
 	SourceHaoKan       = "haokan"       // 好看视频
 	SourceRedBook      = "redbook"      // 小红书
 	SourceBiliBili     = "bilibili"     // 哔哩哔哩
+	SourceTwitter      = "twitter"      // X/Twitter
+	SourceQQVideo      = "qqvideo"      // 腾讯视频
+	SourceCCTV         = "cctv"         // 央视网
+	SourceSohu         = "sohu"         // 搜狐视频
 )
 
 // http 相关
@@ -194,6 +198,38 @@ var videoSourceInfoMapping = map[string]videoSourceInfo{
 			"b23.tv",
 		},
 		VideoShareUrlParser: biliBili{},
+	},
+	SourceTwitter: {
+		VideoShareUrlDomain: []string{
+			"x.com",
+			"twitter.com",
+			"t.co",
+		},
+		VideoShareUrlParser: twitter{},
+		VideoIdParser:       twitter{},
+	},
+	SourceQQVideo: {
+		VideoShareUrlDomain: []string{
+			"v.qq.com",
+		},
+		VideoShareUrlParser: qqVideo{},
+		VideoIdParser:       qqVideo{},
+	},
+	SourceSohu: {
+		VideoShareUrlDomain: []string{
+			"tv.sohu.com",
+			"my.tv.sohu.com",
+		},
+		VideoShareUrlParser: sohuVideo{},
+		VideoIdParser:       sohuVideo{},
+	},
+	SourceCCTV: {
+		VideoShareUrlDomain: []string{
+			"tv.cctv.cn",
+			"tv.cctv.com",
+		},
+		VideoShareUrlParser: cctvVideo{},
+		VideoIdParser:       cctvVideo{},
 	},
 }
 
